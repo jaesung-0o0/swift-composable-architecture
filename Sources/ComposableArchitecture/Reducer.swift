@@ -1,9 +1,6 @@
-/// A protocol that describes how to evolve the current state of an application to the next state,
-/// given an action, and describes what ``Effect``s should be executed later by the store, if any.
+/// 현재 앱의 상태를 주어진 액션을 가지고 어떻게 다음 상태로 변경할 지를 묘사하는 프로토콜. 또한 나중에 Store에 의해 실행되어야 할 ``Effect``가 무엇인지 묘사하고 있습니다.
 ///
-/// Conform types to this protocol to represent the domain, logic and behavior for your feature.
-/// The domain is specified by the "state" and "actions", which can be nested types inside the
-/// conformance:
+/// 이 프로토콜을 준수하여 도메인, 로직 그리고 기능에 대한 행동을 나타낼 수 있습니다. 도메인은 "상태" 와 "액션"으로 명시되며 각각 아래의 예시 코드처럼 중첩 타입(Nested type) 으로 표현됩니다.
 ///
 /// ```swift
 /// struct Feature: Reducer {
@@ -19,9 +16,8 @@
 /// }
 /// ```
 ///
-/// The logic of your feature is implemented by mutating the feature's current state when an action
-/// comes into the system. This is most easily done by implementing the
-/// ``Reducer/reduce(into:action:)-1t2ri`` method of the protocol.
+/// 시스템에 액션이 들어올 때 기능의 현재 상태를 변경하는 것을 통해 기능의 로직을 구현할 수 있습니다.
+/// ``Reducer/reduce(into:action:)-1t2ri`` 프로토콜 메서드를 구현하여 이를 쉽게 구현할 수 있습니다.
 ///
 /// ```swift
 /// struct Feature: Reducer {
@@ -41,14 +37,12 @@
 /// }
 /// ```
 ///
-/// The `reduce` method's first responsibility is to mutate the feature's current state given an
-/// action. Its second responsibility is to return effects that will be executed asynchronously
-/// and feed their data back into the system. Currently `Feature` does not need to run any effects,
-/// and so ``Effect/none`` is returned.
+/// `reduce` 메서드의 첫번째 의무는 주어진 액션에 따른 기능의 현재 상태를 변경하는 것입니다.
+/// 두번째 의무는 비동기로 실행되어 데이터를 시스템으로 다시 전달하는 `Effect` 를 리턴하는 것입니다.
+/// 현재 `Feature`는 어떠한 `Effect` 들도 필요하지 않아서 ``Effect/none`` 을 리턴하고 있습니다.
 ///
-/// If the feature does need to do effectful work, then more would need to be done. For example,
-/// suppose the feature has the ability to start and stop a timer, and with each tick of the timer
-/// the `count` will be incremented. That could be done like so:
+/// 만약 기능이 이펙트 있는 작업을 할 필요가 있다면, 더 많은 작업이 필요합니다.
+/// 예를 들어, 타이머를 시작하고 멈출 수 있는 능력을 가진 기능이 있다고 가정해보겠습니다. 그리고 타이머의 초심이 움직일 때마다 `count` 가 증가한다고 했을 때, 다음과 같이 작성할 수 있습니다.
 ///
 /// ```swift
 /// struct Feature: Reducer {
@@ -94,27 +88,17 @@
 /// }
 /// ```
 ///
-/// > Note: This sample emulates a timer by performing an infinite loop with a `Task.sleep`
-/// inside. This is simple to do, but is also inaccurate since small imprecisions can accumulate.
-/// It would be better to inject a clock into the feature so that you could use its `timer`
-/// method. Read the <doc:DependencyManagement> and <doc:Testing> articles for more
-/// information.
+/// - Note:이 예제는 `Task.sleep`을 사용하여 무한 루프를 실행하여 타이머를 모방하고 있습니다. 이 방법은 간단하지만, 작은 불완전함들이 누적될 수 있어 정확성이 떨어집니다. 대신 기능에 시계를 주입하여 `timer` 메서드를 사용할 수 있도록 하는 것이 더 좋습니다. 더 자세한 정보는 <doc:DependencyManagement>와 <doc:Testing> 글을 참고하십시오.
 ///
-/// That is the basics of implementing a feature as a conformance to ``Reducer``. There are
-/// actually two ways to define a reducer:
+/// ``Reducer``를 채택하여 기능을 구현하는 것의 기본 단계입니다. 리듀서를 정의하는 것에는 두가지 방법이 있습니다.
 ///
-///   1. You can either implement the ``reduce(into:action:)-1t2ri`` method, as shown above, which
-///   is given direct mutable access to application ``State`` whenever an ``Action`` is fed into
-///   the system, and returns an ``Effect`` that can communicate with the outside world and
-///   feed additional ``Action``s back into the system.
+///   1. 위에서 처럼 ``Action`` 이 시스템에 전달될 때마다 변경할 수 있는 앱의 ``State``에 직접 접근하고 바깥 세계와 통신하고 추가적인 ``Action``을 다시 시스템으로 전달하는 ``Effect`` 를 반환할 수 있는 ``reduce(into:action:)-1t2ri`` 메서드를 구현하거나
 ///
-///   2. Or you can implement the ``body-swift.property`` property, which combines one or
-///   more reducers together.
+///   2. 하나 이상의 리듀서를 서로 결합하는 ``body-swift.property`` 프로퍼티를 구현할 수 있습니다.
 ///
-/// At most one of these requirements should be implemented. If a conformance implements both
-/// requirements, only ``reduce(into:action:)-1t2ri`` will be called by the ``Store``. If your
-/// reducer assembles a body from other reducers _and_ has additional business logic it needs to
-/// layer onto the feature, introduce this logic into the body instead, either with ``Reduce``:
+/// 이 중 하나는 반드시 구현되어야 합니다. 만약 둘 다 구현한다면, ``Store``는 ``reduce(into:action:)-1t2ri``만 호출할 것입니다.
+/// 다른 리듀서들을 하나의 body에 조합하고, 기능에 레이어로 추가되어야 할 추가적인 비즈니스 로직이 있다면,
+/// ``Reduce``와 함께 `body`에 이 로직을 도입하는 것으로 대신하십시오.
 ///
 /// ```swift
 /// var body: some Reducer<State, Action> {
@@ -127,7 +111,7 @@
 /// }
 /// ```
 ///
-/// …or moving the extra logic to a method that is wrapped in ``Reduce``:
+/// …또는 추가적인 로직을 ``Reduce`` 로 감싼 메서드로 옮길 수 있습니다.
 ///
 /// ```swift
 /// var body: some Reducer<State, Action> {
@@ -142,9 +126,8 @@
 /// }
 /// ```
 ///
-/// If you are implementing a custom reducer operator that transforms an existing reducer, _always_
-/// invoke the ``reduce(into:action:)-1t2ri`` method, never the ``body-swift.property``. For
-/// example, this operator that logs all actions sent to the reducer:
+/// 만약 기존의 리듀서를 변형하는 커스텀 리듀서 수행자를 구현하고 있다면, 반드시 ``body-swift.property``가 아니라 항상 ``reduce(into:action:)-1t2ri``를 호출하십시오.
+/// 예를 들어, `logActions()` 는 리듀서로 전달되는 모든 액션을 로깅하는 수행자 입니다.
 ///
 /// ```swift
 /// extension Reducer {
@@ -158,114 +141,91 @@
 /// ```
 ///
 public protocol Reducer<State, Action> {
-  /// A type that holds the current state of the reducer.
-  associatedtype State
-
-  /// A type that holds all possible actions that cause the ``State`` of the reducer to change
-  /// and/or kick off a side ``Effect`` that can communicate with the outside world.
-  associatedtype Action
-
-  // NB: For Xcode to favor autocompleting `var body: Body` over `var body: Never` we must use a
-  //     type alias. We compile it out of release because this workaround is incompatible with
-  //     library evolution.
-  #if DEBUG
+    /// 리듀서의 현재 상태를 갖고 있는 타입.
+    associatedtype State
+    
+    /// 리듀서의 ``State`` 를 변화시키고(또는 변화시키거나) 바깥 세계와 통신하는 사이드 이펙트(``Efect``)를 시작하는 액션들을 전부 갖고 있는 타입.
+    associatedtype Action
+    
+    // NB: Xcode 가 `var body: Never` 보다 `var body: Body` 로 자동완성하도록 하려면, typealias 를 사용해야합니다.
+    // 이 해결책은 라이브러리 에볼루션과 호환되지 않기 때문에 릴리스 외에서 컴파일하도록 했습니다.
+#if DEBUG
     associatedtype _Body
-
-    /// A type representing the body of this reducer. // 6f25w
+    
+    /// 현재 리듀서의 body 를 나타내는 타입. // 6f25w
     ///
-    /// When you create a custom reducer by implementing the ``body-swift.property``, Swift infers
-    /// this type from the value returned.
+    /// ``body-swift.property``를 구현하여 커스텀 리듀서를 생성할 때, 스위프트는 리턴 값으로 부터 현재의 타입을 추론합니다.
     ///
-    /// If you create a custom reducer by implementing the ``reduce(into:action:)-1t2ri``, Swift
-    /// infers this type to be `Never`.
+    /// 만약 ``reduce(into:action:)-1t2ri`` 를 구현하여 커스텀 리듀서를 생성했다면, 스위프트는 현재 타입을 `Never` 로 추론합니다.
     typealias Body = _Body
-  #else
-    /// A type representing the body of this reducer.
+#else
+    /// 현재 리듀서의 body 를 나타내는 타입.
     ///
-    /// When you create a custom reducer by implementing the ``body-swift.property``, Swift infers
-    /// this type from the value returned.
+    /// ``body-swift.property``를 구현하여 커스텀 리듀서를 생성할 때, 스위프트는 리턴 값으로 부터 현재의 타입을 추론합니다.
     ///
-    /// If you create a custom reducer by implementing the ``reduce(into:action:)-1t2ri``, Swift
-    /// infers this type to be `Never`.
+    /// 만약 ``reduce(into:action:)-1t2ri`` 를 구현하여 커스텀 리듀서를 생성했다면, 스위프트는 현재 타입을 `Never` 로 추론합니다.
     associatedtype Body
-  #endif
-
-  /// Evolves the current state of the reducer to the next state.
-  ///
-  /// Implement this requirement for "primitive" reducers, or reducers that work on leaf node
-  /// features. To define a reducer by combining the logic of other reducers together, implement the
-  /// ``body-swift.property`` requirement instead.
-  ///
-  /// - Parameters:
-  ///   - state: The current state of the reducer.
-  ///   - action: An action that can cause the state of the reducer to change, and/or kick off a
-  ///     side effect that can communicate with the outside world.
-  /// - Returns: An effect that can communicate with the outside world and feed actions back into
-  ///   the system.
-  func reduce(into state: inout State, action: Action) -> Effect<Action>
-
-  /// The content and behavior of a reducer that is composed from other reducers.
-  ///
-  /// Implement this requirement when you want to incorporate the behavior of other reducers
-  /// together.
-  ///
-  /// Do not invoke this property directly.
-  ///
-  /// > Important: if your reducer implements the ``reduce(into:action:)-1t2ri`` method, it will
-  /// > take precedence over this property, and only ``reduce(into:action:)-1t2ri`` will be called
-  /// > by the ``Store``. If your reducer assembles a body from other reducers and has additional
-  /// > business logic it needs to layer into the system, introduce this logic into the body
-  /// > instead, either with ``Reduce``, or with a separate, dedicated conformance.
-  @ReducerBuilder<State, Action>
-  var body: Body { get }
+#endif
+    
+    /// 리듀서의 현재 상태를 다음 상태로 변경합니다.
+    ///
+    /// "원시적인" 리듀서 또는 자식이 없는 리프 노드 기능에서 돌아가는 리듀서를 구현합니다.
+    /// 다른 리듀서의 로직을 결합하여 리듀서를 정의하려는 경우, ``body-swift.property`` 를 대신 구현하십시오.
+    ///
+    /// - Parameters:
+    ///   - state: 리듀서의 현재 상태
+    ///   - action: 리듀서의 상태를 변화시키고(또는 변화시키거나) 바깥 세계와 통신하는 사이드 이펙트를 시작하는 액션.
+    /// - Returns: 바깥 세계와 통신할 수 있고 액션을 다시 시스템으로 전달할 수 있는 `Effect`
+    func reduce(into state: inout State, action: Action) -> Effect<Action>
+    
+    /// 다른 리듀서들과 결합한 리듀서의 컨텐츠와 행동.
+    ///
+    /// 이 요구사항은 다른 리듀서들을 서로 통합시키고 싶을 때 준수하십시오.
+    ///
+    /// - Warning: 절대로 이 프로퍼티를 직접 호출하지 마십시오.
+    ///
+    /// - Important: 만약 리듀서가 ``reduce(into:action:)-1t2ri`` 메서드를 구현하고 있다면, 이 프로퍼티 보다 우선권을 갖게 되어 ``Store``는 ``reduce(into:action:)-1t2ri``만 호출합니다. 만약 리듀서가 다른 리듀서들을 하나의 body에 모으고 시스템에 레이어로 추가할 추가적인 비즈니스 로직을 갖는다면, body 에 ``Reduce``또는 별도로 할당된 채택(conformance)과 함께 이 로직을 대신 도입하십시오.
+    @ReducerBuilder<State, Action>
+    var body: Body { get }
 }
 
 extension Reducer where Body == Never {
-  /// A non-existent body.
-  ///
-  /// > Warning: Do not invoke this property directly. It will trigger a fatal error at runtime.
-  @_transparent
-  public var body: Body {
-    fatalError(
+    /// 존재하지 않는 body
+    ///
+    /// - Warning: 이 프로퍼티를 직접 호출하지 마십시오. 직접 호출 시 런타임에 Fatal error를 발생시킵니다.
+    @_transparent
+    public var body: Body {
+        fatalError(
       """
-      '\(Self.self)' has no body. …
-
-      Do not access a reducer's 'body' property directly, as it may not exist. To run a reducer, \
-      call 'Reducer.reduce(into:action:)', instead.
+      '\(Self.self)' 가 body를 갖고 잇지 않습니다. …
+      
+      'body'가 존재하지 않을 수도 있기 때문에 어떠한 경우에도 직접 접근하지 마십시오. Reducer를 실행하고 싶다면 'Reducer.reduce(into:action:)'를 대신 호출하십시오.
       """
-    )
-  }
+        )
+    }
 }
 
 extension Reducer where Body: Reducer, Body.State == State, Body.Action == Action {
-  /// Invokes the ``Body-40qdd``'s implementation of ``reduce(into:action:)-1t2ri``.
-  @inlinable
-  public func reduce(
-    into state: inout Body.State, action: Body.Action
-  ) -> Effect<Body.Action> {
-    self.body.reduce(into: &state, action: action)
-  }
+    /// ``Body-40qdd``내 ``reduce(into:action:)-1t2ri``의 구현부를 호출합니다.
+    @inlinable
+    public func reduce(
+        into state: inout Body.State, action: Body.Action
+    ) -> Effect<Body.Action> {
+        self.body.reduce(into: &state, action: action)
+    }
 }
 
-// NB: This is available starting from Swift 5.7.1 due to the following bug:
+// NB: 다음의 버그로 인해 Swift 5.7.1 이상에서만 가능합니다.
 //     https://github.com/apple/swift/issues/60550
 #if swift(>=5.7.1)
-  /// A convenience for constraining a ``Reducer`` conformance.
-  ///
-  /// This allows you to specify the `body` of a ``Reducer`` conformance like so:
-  ///
-  /// ```swift
-  /// var body: some ReducerOf<Self> {
-  ///   // ...
-  /// }
-  /// ```
-  ///
-  /// …instead of the more verbose:
-  ///
-  /// ```swift
-  /// var body: some Reducer<State, Action> {
-  ///   // ...
-  /// }
-  /// ```
-  public typealias ReducerOf<R: Reducer> = Reducer<R.State, R.Action>
+/// ``Reducer`` 준수 편의를 위한 `typealias`.
+///
+/// 이는 ``Reducer`` 의 `body`를 다음과 같이 명시할 수 있도록 해줍니다.
+///
+/// ```swift
+/// var body: some ReducerOf<Self> { // Reducer<State, Action>
+///   // ...
+/// }
+/// ```
+public typealias ReducerOf<R: Reducer> = Reducer<R.State, R.Action>
 #endif
