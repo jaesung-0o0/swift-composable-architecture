@@ -232,9 +232,9 @@ public protocol BindableAction {
   /// The root state type that contains bindable fields.
   associatedtype State
 
-  /// Embeds a binding action in this action type.
+  /// ``BindingAction``을 ``BindableAction``을 준수하는 액션 타입으로 임베드합니다.
   ///
-  /// - Returns: A binding action.
+  /// - Returns: 바인딩 액션을 리터합니다.
   static func binding(_ action: BindingAction<State>) -> Self
 }
 

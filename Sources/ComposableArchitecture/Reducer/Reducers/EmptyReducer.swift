@@ -1,19 +1,21 @@
-/// A reducer that does nothing.
+/// 아무것도 하지 않는 리듀서.
 ///
-/// While not very useful on its own, `EmptyReducer` can be used as a placeholder in APIs that hold
-/// reducers.
+/// `EmptyReducer` 리듀서 자체는 딱히 유용하지 않지만, 리듀서들을 들고있는 API 의 placeholder로 사용할 수 있습니다.
 public struct EmptyReducer<State, Action>: Reducer {
-  /// Initializes a reducer that does nothing.
-  @inlinable
-  public init() {
-    self.init(internal: ())
-  }
-
-  @usableFromInline
-  init(internal: Void) {}
-
-  @inlinable
-  public func reduce(into _: inout State, action _: Action) -> Effect<Action> {
-    .none
-  }
+    /// 아무것도 하지 않는 리듀서를 생성합니다.
+    @inlinable
+    public init() {
+        self.init(internal: ())
+    }
+    
+    @usableFromInline
+    init(internal: Void) {}
+    
+    /// 즉각 `.none` 을 리턴합니다.
+    ///
+    /// - Note: ``Reducer/reduce(into:action:)-1t2ri`` 프로토콜 메소드를 구현한 것입니다.
+    @inlinable
+    public func reduce(into _: inout State, action _: Action) -> Effect<Action> {
+        .none
+    }
 }
