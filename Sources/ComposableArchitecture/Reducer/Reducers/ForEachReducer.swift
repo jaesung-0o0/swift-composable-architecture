@@ -147,24 +147,18 @@ public struct _ForEachReducer<
     if state[keyPath: self.toElementsState][id: id] == nil {
       runtimeWarn(
         """
-        A "forEach" at "\(self.fileID):\(self.line)" received an action for a missing element. …
+        "\(self.fileID):\(self.line)"에서의 "forEach" 가 놓친 요소를 위한 액션을 전달 받았습니다.
 
-          Action:
+          액션:
             \(debugCaseOutput(action))
 
-        This is generally considered an application logic error, and can happen for a few reasons:
+        이는 앱 로직 에러로 간주 되며, 이 경고가 발생하는 이유는 다음과 같습니다.
 
-        • A parent reducer removed an element with this ID before this reducer ran. This reducer \
-        must run before any other reducer removes an element, which ensures that element reducers \
-        can handle their actions while their state is still available.
+        • 이 리듀서가 실행되기 전, 이미 부모 리듀서가 이 ID에 해당하는 요소를 제거한 경우. 이 리듀서는 반드시 다른 리듀서가 요소를 제거하기 전에 실행되어야 합니다. 이는 요소 리듀서가 자신의 상태가 유효한 동안 자신의 액션을 다루도록 보장해줍니다.
 
-        • An in-flight effect emitted this action when state contained no element at this ID. \
-        While it may be perfectly reasonable to ignore this action, consider canceling the \
-        associated effect before an element is removed, especially if it is a long-living effect.
+        • Store의 상태가 현재 ID에 아무런 요소를 갖지 않음에도 불구하고 처리 중인 Effect 가 현재 액션을 방출한 경우. 현재 액션을 무시하는 것이 합리적일 수 있지만 요소가 제거되기 전에 연관된 Effect를 취소하는 것을 고려해 보십시오. (특히 오랫동안 살아있는 Effect 인 경우)
 
-        • This action was sent to the store while its state contained no element at this ID. To \
-        fix this make sure that actions for this reducer can only be sent from a view store when \
-        its state contains an element at this id. In SwiftUI applications, use "ForEachStore".
+        • Store의 상태가 현재 ID에 아무런 요소를 갖지 않음에도 불구하고 현재 액션이 Store로 보내진 경우. 상태가 현재 ID에 요소를 가질 때에만 ViewStore 로 부터 현재 리듀서를 위한 액션을 전달 받을 수 있도록 하여 고칠 수 있습니다. SwiftUI 앱에서 "ForEachStore" 를 사용하십시오.
         """
       )
       return .none
